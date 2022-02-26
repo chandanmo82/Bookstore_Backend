@@ -6,13 +6,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use App\Models\Book;
-use App\Models\User;
-use Exception;
+use App\Exceptions\BookStoreAppException;
 
 class BookController extends Controller
 {
@@ -22,6 +20,34 @@ class BookController extends Controller
      * an url and that urlwill be stored in mysql database and admin bearer token
      * must be passed because only admin can add or remove books .
     */
+    /**
+     * @OA\Post(
+     *   path="/api/auth/addbook",
+     *   summary="Add Book",
+     *   description="Admin Can Add Book ",
+     *   @OA\RequestBody(
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *            mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *               type="object",
+     *               required={"name","description","author","image", "Price", "quantity"},
+     *               @OA\Property(property="name", type="string"),
+     *               @OA\Property(property="description", type="string"),              
+     *               @OA\Property(property="author", type="string"),
+     *               @OA\Property(property="image", type="file"),
+     *               @OA\Property(property="Price", type="decimal"),
+     *               @OA\Property(property="quantity", type="integer"),
+     *            ),
+     *        ),
+     *    ),
+     *   @OA\Response(response=201, description="Book created successfully"),
+     *   @OA\Response(response=404, description="Invalid authorization token"),
+     *   security = {
+     * {
+     * "Bearer" : {}}}
+     * )
+     * */
     public function addBook(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -62,15 +88,17 @@ class BookController extends Controller
                 $book->quantity = $request->input('quantity');
                 $book->user_id = $currentUser->id;
                 $book->save();
+            } else {
+                Log::error('Invalid User');
+                throw new BookStoreAppException("Invalid authorization token", 404);
             }
             $value = Cache::remember('books', 3600, function () {
                 return DB::table('books')->get();
             });
             Log::info('book created', ['admin_id' => $book->user_id]);
             return response()->json(['message' => 'Book created successfully'], 201);
-        } catch (Exception $e) {
-            Log::error('Invalid User');
-            return response()->json(['message' => 'Invalid authorization token'], 404);
+        } catch (BookStoreAppException $e) {
+            return response()->json(['message' => $e->message(), 'status' => $e->statusCode()]);
         }
     }
 
@@ -81,6 +109,34 @@ class BookController extends Controller
      * a url and that urlwill be stored in mysql database and admin bearer token
      * must be passed because only admin can add or remove books .
     */
+     /**
+     * @OA\Post(
+     *   path="/api/auth/updatebook",
+     *   summary="Update Book",
+     *   description="Admin Can Update Book ",
+     *   @OA\RequestBody(
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *            mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *               type="object",
+     *               required={"id","name","description","author","image", "Price"},
+     *               @OA\Property(property="id", type="integer"),
+     *               @OA\Property(property="name", type="string"),
+     *               @OA\Property(property="description", type="string"),              
+     *               @OA\Property(property="author", type="string"),
+     *               @OA\Property(property="image", type="file"),
+     *               @OA\Property(property="Price", type="decimal"),
+     *            ),
+     *        ),
+     *    ),
+     *   @OA\Response(response=201, description="Book updated Sucessfully"),
+     *   @OA\Response(response=404, description="Invalid authorization token"),
+     *   security = {
+     * {
+     * "Bearer" : {}}}
+     * )
+     * */
     public function updateBookByBookId(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -97,6 +153,10 @@ class BookController extends Controller
         }
         try {
             $currentUser = JWTAuth::parseToken()->authenticate();
+            if (!$currentUser) {
+                Log::error('Invalid User');
+                throw new BookStoreAppException("Invalid authorization token", 404);
+            }
             $id = $request->input('id');
             $book = new Book();
             $adminId = $book->adminOrUserVerification($currentUser->id);
@@ -125,9 +185,8 @@ class BookController extends Controller
                 Log::info('book updated', ['admin_id' => $book->user_id]);
                 return response()->json(['message' => 'Book updated Sucessfully'], 201);
             }
-        } catch (Exception $e) {
-            Log::error('Invalid User');
-            return response()->json(['message' => 'Invalid authorization token'], 404);
+        } catch (BookStoreAppException $e) {
+            return response()->json(['message' => $e->message(), 'status' => $e->statusCode()]);
         }
     }
 
@@ -136,6 +195,30 @@ class BookController extends Controller
      *valid Authentication token as an input and fetch the book stock in the book store
      *and performs addquantity operation on that perticular Bookid.
     */
+        /**
+     * @OA\Post(
+     *   path="/api/auth/addquantity",
+     *   summary="Add Quantity to Existing Book",
+     *   description=" Add Book Quantity ",
+     *   @OA\RequestBody(
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *            mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *               type="object",
+     *               required={"id", "quantity"},
+     *               @OA\Property(property="id", type="integer"),
+     *               @OA\Property(property="quantity", type="integer"),
+     *            ),
+     *        ),
+     *    ),
+     *   @OA\Response(response=201, description="Book Quantity updated Successfully"),
+     *   @OA\Response(response=404, description="Invalid authorization token"),
+     *   security = {
+     * {
+     * "Bearer" : {}}}
+     * )
+     */
     public function addQuantityToExistingBook(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -147,6 +230,10 @@ class BookController extends Controller
         }
         try {
             $currentUser = JWTAuth::parseToken()->authenticate();
+            if (!$currentUser) {
+                Log::error('Invalid User');
+                throw new BookStoreAppException("Invalid authorization token", 404);
+            }
             $book = new Book();
             $adminId = $book->adminOrUserVerification($currentUser->id);
             if (count($adminId) == 0) {
@@ -159,9 +246,8 @@ class BookController extends Controller
             $book->quantity += $request->quantity;
             $book->save();
             return response()->json(['message' => 'Book Quantity updated Successfully'], 201);
-        } catch (Exception $e) {
-            Log::error('Invalid User');
-            return response()->json(['message' => 'Invalid authorization token'], 404);
+        } catch (BookStoreAppException $e) {
+            return response()->json(['message' => $e->message(), 'status' => $e->statusCode()]);
         }
     }
 
@@ -170,68 +256,112 @@ class BookController extends Controller
      * and fetch the book in the bookstore database and performs delete operation on  
      * on that perticular Bookid
     */
+    /**
+     * @OA\Post(
+     *   path="/api/auth/deletebook",
+     *   summary="Delete the book from BookStoreApp",
+     *   description=" Delete Book ",
+     *   @OA\RequestBody(
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *            mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *               type="object",
+     *               required={"id"},
+     *               @OA\Property(property="id", type="integer"),
+     *            ),
+     *        ),
+     *    ),
+     *   @OA\Response(response=201, description="Book deleted Sucessfully"),
+     *   @OA\Response(response=404, description="Invalid authorization token"),
+     *   security = {
+     * {
+     * "Bearer" : {}}}
+     * )
+     */
     public function deleteBookByBookId(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'id' => 'required',
         ]);
-        if($validator->fails())
-        {
+        if ($validator->fails()) {
             return response()->json($validator->errors()->toJson(), 400);
         }
-        try
-        {
+        try {
             $currentUser = JWTAuth::parseToken()->authenticate();
+            if (!$currentUser) {
+                Log::error('Invalid User');
+                throw new BookStoreAppException("Invalid authorization token", 404);
+            }
             $book = new Book();
             $adminId = $book->adminOrUserVerification($currentUser->id);
-            if(count($adminId) == 0)
-            {
-                return response()->json(['message' => 'You are not an ADMIN' ], 401);
+            if (count($adminId) == 0) {
+                return response()->json(['message' => 'You are not an ADMIN'], 401);
             }
-            $book=Book::find($request->id);
-            if(!$book)
-            {
-                return response()->json([ 'message' => 'Book not Found'], 404);
+            $book = Book::find($request->id);
+            if (!$book) {
+                return response()->json(['message' => 'Book not Found'], 404);
             }
 
-            $path = str_replace(env('AWS_URL'),'',$book->image);
-            if(Storage::disk('s3')->exists($path)) 
-            {
+            $path = str_replace(env('AWS_URL'), '', $book->image);
+            if (Storage::disk('s3')->exists($path)) {
                 Storage::disk('s3')->delete($path);
-                if($book->delete())
-                {
-                    Log::info('book deleted',['user_id'=>$currentUser,'book_id'=>$request->id]);
+                if ($book->delete()) {
+                    Log::info('book deleted', ['user_id' => $currentUser, 'book_id' => $request->id]);
                     return response()->json(['message' => 'Book deleted Sucessfully'], 201);
                 }
-            }     
-            return response()->json(['message' => 'File image was not deleted'], 402);    
+            }
+            return response()->json(['message' => 'File image was not deleted'], 402);
+        } catch (BookStoreAppException $e) {
+            return response()->json(['message' => $e->message(), 'status' => $e->statusCode()]);
         }
-        catch(Exception $e)
-        {
-            Log::error('Invalid User');
-            return response()->json(['message' => 'Invalid authorization token' ], 404);
-        }
-
     }
 
     /*
      *Function returns all the added books in the store .
     */
-    public function getAllBooks() {
-        $book = Cache::remember('books', 3600, function () {
-            return DB::table('books')->get();
-        });
-        //$book = Book::select('id','name','description','author','image','Price','quantity')->get();
-        if($book==[])
-        {
+        /**
+     * @OA\Get(
+     *   path="/api/auth/displaybooks",
+     *   summary="Display All Books",
+     *   description=" Display All Books Present in the BookStore ",
+     *   @OA\RequestBody(
+     *         
+     *    ),
+     *   @OA\Response(response=201, description="Books Available in the Bookstore are"),
+     *   @OA\Response(response=404, description="Books are not there"),
+     * )
+     */
+    public function getAllBooks()
+    {
+        try {
+            $book = Cache::remember('books', 3600, function () {
+                return DB::table('books')->get();
+            });
+            //$book = Book::select('id','name','description','author','image','Price','quantity')->get();
+            if ($book == []) {
+                throw new BookStoreAppException("Books are not there", 404);
+            }
             return response()->json([
-                'message' => 'Books are not there'
+                'message' => 'Books Available in the Bookstore are :',
+                'books' => $book
+
             ], 201);
+        } catch (BookStoreAppException $e) {
+            return response()->json(['message' => $e->message(), 'status' => $e->statusCode()]);
         }
+    }
+
+    /**
+     * This method will paginate the booklists present in the book store
+     */
+    public function paginationBook()
+    {
+        $allBooks = Book::paginate(3); 
+
         return response()->json([
-            'message' => 'Books Available in the Bookstore are :',
-            'books' => $book
-            
+            'message' => 'Pagination aplied to all Books',
+            'books' =>  $allBooks,
         ], 201);
     }
 }

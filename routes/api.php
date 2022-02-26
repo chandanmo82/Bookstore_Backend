@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\CartController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,5 +38,14 @@ Route::group([
     Route::post('updatebook', [BookController::class, 'updateBookByBookId']);
     Route::post('deletebook', [BookController::class, 'deleteBookByBookId']);
     Route::get('displaybooks', [BookController::class, 'getAllBooks']);
+    Route::get('pagination', [BookController::class, 'paginationBook']);
+
+    Route::post('addtocart', [CartController::class, 'addBookToCartByBookId']);
+    Route::post('deletecart', [CartController::class, 'deleteBookByCartId']);
+    Route::get('getcart', [CartController::class, 'getAllBooksByUserId']);
+    Route::post('updatequantity', [CartController::class, 'updateBookQuantityInCart']);
+
+
+
 
 });

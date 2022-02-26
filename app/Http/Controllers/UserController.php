@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Exceptions\BookStoreAppException;
 
 /**
  * @since 21-Feb-2022
@@ -19,14 +20,14 @@ use Tymon\JWTAuth\Facades\JWTAuth;
  */
 class UserController extends Controller
 {
-     /** 
+    /** 
      * It takes a POST request and requires fields for the user to register,
      * and validates them if it is validated,creates those values in DB 
      * and returns success response.
      *
      * @return \Illuminate\Http\JsonResponse
      */
-       /**
+    /**
      * @OA\Post(
      *   path="/api/auth/register",
      *   summary="register",
@@ -76,18 +77,23 @@ class UserController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->errors()->toJson(), 400);
         }
-        $userObject = new User();
-        $user = $userObject->userEmailValidation($request->email);
-        if ($user) {
-            return response()->json(['message' => 'The email has already been taken'], 401);
-        }
+        try {
+            $userObject = new User();
+            $user = $userObject->userEmailValidation($request->email);
+            if ($user) {
+                throw new BookStoreAppException("The email has already been taken", 401);
+            }
 
-        $userObject = new User();
-        $userDetails = $userObject->saveUserDetails($userArray);
-        Log::info('Registered user Email : ' . 'Email Id :' . $request->email);
-        $value = Cache::remember('users', 3600, function () {
-            return DB::table('users')->get();
-        });
+            $userObject = new User();
+            $userDetails = $userObject->saveUserDetails($userArray);
+            Log::info('Registered user Email : ' . 'Email Id :' . $request->email);
+            $value = Cache::remember('users', 3600, function () {
+                return DB::table('users')->get();
+            });
+        } catch (BookStoreAppException $e) {
+
+            return response()->json(['message' => $e->message(), 'status' => $e->statusCode()]);
+        }
         if ($userDetails) {
             return response()->json([
                 'message' => 'User Successfully Registered ',
@@ -100,7 +106,7 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-        /**
+    /**
      * @OA\Post(
      *   path="/api/auth/login",
      *   summary="login",
@@ -130,7 +136,7 @@ class UserController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json($validator->errors(), 400);
         }
         $value = Cache::remember('users', 1, function () {
             return User::all();
@@ -157,8 +163,8 @@ class UserController extends Controller
      * Log the user out.
      *
      * @return \Illuminate\Http\JsonResponse
-    */
-        /**
+     */
+    /**
      * @OA\Post(
      *   path="/api/auth/logout",
      *   summary="logout",
@@ -172,7 +178,8 @@ class UserController extends Controller
      * "Bearer" : {}}}
      * )
      */
-    public function logout() {
+    public function logout()
+    {
         auth()->logout();
 
         return response()->json(['message' => 'User successfully signed out']);

@@ -1,11 +1,376 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "BookStore Application",
-        "description": "BookStore Application ",
-        "version": "1.0"
+        "title": "Swagger Integration with BookStore Application",
+        "description": "Integrate Swagger in Laravel  BookStoreapplication",
+        "contact": {
+            "email": "chandanmohanty11111@gmail.com"
+        },
+        "version": "1.0.0"
     },
     "paths": {
+        "/api/auth/addbook": {
+            "post": {
+                "summary": "Add Book",
+                "description": "Admin Can Add Book ",
+                "operationId": "ec4e9b9f7a7c56771d9143574c257748",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "description",
+                                    "author",
+                                    "image",
+                                    "Price",
+                                    "quantity"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "author": {
+                                        "type": "string"
+                                    },
+                                    "image": {
+                                        "type": "file"
+                                    },
+                                    "Price": {
+                                        "type": "decimal"
+                                    },
+                                    "quantity": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Book created successfully"
+                    },
+                    "404": {
+                        "description": "Invalid authorization token"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/updatebook": {
+            "post": {
+                "summary": "Update Book",
+                "description": "Admin Can Update Book ",
+                "operationId": "3f74d6bed68a22115f57e6cc1f83e1ee",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "id",
+                                    "name",
+                                    "description",
+                                    "author",
+                                    "image",
+                                    "Price"
+                                ],
+                                "properties": {
+                                    "id": {
+                                        "type": "integer"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "author": {
+                                        "type": "string"
+                                    },
+                                    "image": {
+                                        "type": "file"
+                                    },
+                                    "Price": {
+                                        "type": "decimal"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Book updated Sucessfully"
+                    },
+                    "404": {
+                        "description": "Invalid authorization token"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/addquantity": {
+            "post": {
+                "summary": "Add Quantity to Existing Book",
+                "description": " Add Book Quantity ",
+                "operationId": "52974593a183cab8cc4c6554b361b255",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "id",
+                                    "quantity"
+                                ],
+                                "properties": {
+                                    "id": {
+                                        "type": "integer"
+                                    },
+                                    "quantity": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Book Quantity updated Successfully"
+                    },
+                    "404": {
+                        "description": "Invalid authorization token"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/deletebook": {
+            "post": {
+                "summary": "Delete the book from BookStoreApp",
+                "description": " Delete Book ",
+                "operationId": "68eaebcbf2fba7119ae4fe3c29a60487",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "id"
+                                ],
+                                "properties": {
+                                    "id": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Book deleted Sucessfully"
+                    },
+                    "404": {
+                        "description": "Invalid authorization token"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/displaybooks": {
+            "get": {
+                "summary": "Display All Books",
+                "description": " Display All Books Present in the BookStore ",
+                "operationId": "42ecfb3cd87d86dd01400517f00db529",
+                "requestBody": {},
+                "responses": {
+                    "201": {
+                        "description": "Books Available in the Bookstore are"
+                    },
+                    "404": {
+                        "description": "Books are not there"
+                    }
+                }
+            }
+        },
+        "/api/auth/addtocart": {
+            "post": {
+                "summary": "Add the book to Cart",
+                "description": " Add to cart ",
+                "operationId": "e9e38d03a9735500f6a54ca53978d61a",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "book_id"
+                                ],
+                                "properties": {
+                                    "book_id": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Book added to Cart Sucessfully"
+                    },
+                    "404": {
+                        "description": "Invalid authorization token"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/deletecart": {
+            "post": {
+                "summary": "Delete the book from cart",
+                "description": " Delete cart ",
+                "operationId": "d6dde3bd7268864ab85fa84c078596cc",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "id"
+                                ],
+                                "properties": {
+                                    "id": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Book deleted Sucessfully from cart"
+                    },
+                    "404": {
+                        "description": "Invalid authorization token"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/getcart": {
+            "get": {
+                "summary": "Get All Books Present in Cart",
+                "description": " Get All Books Present in Cart ",
+                "operationId": "733c60011de86a428926d95b36921bed",
+                "requestBody": {},
+                "responses": {
+                    "404": {
+                        "description": "Invalid authorization token"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/updatequantity": {
+            "post": {
+                "summary": "Add Quantity to Existing Book in cart",
+                "description": " Add Book Quantity  in cart",
+                "operationId": "5525b60c9de479590d7124f9df15730f",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "id",
+                                    "book_quantity"
+                                ],
+                                "properties": {
+                                    "id": {
+                                        "type": "integer"
+                                    },
+                                    "book_quantity": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Book Quantity updated Successfully"
+                    },
+                    "404": {
+                        "description": "Invalid authorization token"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
         "/api/auth/forgotpassword": {
             "post": {
                 "summary": "forgotpassword",
@@ -199,6 +564,16 @@
                         "Bearer": []
                     }
                 ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "Bearer": {
+                "type": "http",
+                "description": "Laravel bearer token authentication",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
             }
         }
     },

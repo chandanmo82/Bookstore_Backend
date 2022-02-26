@@ -7,11 +7,10 @@ use App\Http\Requests\SendEmailRequest;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Exceptions\BookStoreAppException;
 
- /**
+/**
  * @since 22-Feb-2022
  * This is the forgot passwors controller from this we are going to 
  * send reset email link to user specified email.
@@ -53,19 +52,24 @@ class ForgotPasswordController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email|max:100|unique:users',
         ]);
-        $userObject = new User();
-        $user = $userObject->userEmailValidation($request->email);
-        if (!$user) {
-            Log::error('Email not found.', ['id' => $request->email]);
-            return response()->json(['message' => 'we can not find a user with that email address'], 404);
+        try {
+            $userObject = new User();
+            $user = $userObject->userEmailValidation($request->email);
+            if (!$user) {
+                Log::error('Email not found.', ['id' => $request->email]);
+                throw new BookStoreAppException("we can not find a user with that email address", 404);
+            }
+            $token = Auth::fromUser($user);
+            if ($user) {
+                $sendEmail = new SendEmailRequest();
+                $sendEmail->sendEmail($user->email, $token);
+            }
+            Log::info('Forgot PassWord Link : ' . 'Email Id :' . $request->email);
+            return response()->json(['message' => 'we have mailed your password reset link to respective E-mail'], 200);
+        } catch (BookStoreAppException $e) {
+
+            return response()->json(['message' => $e->message(), 'status' => $e->statusCode()]);
         }
-        $token = Auth::fromUser($user);
-        if ($user) {
-            $sendEmail = new SendEmailRequest();
-            $sendEmail->sendEmail($user->email, $token);
-        }
-        Log::info('Forgot PassWord Link : '.'Email Id :'.$request->email );
-        return response()->json(['message' => 'we have mailed your password reset link to respective E-mail'], 200);
     }
     /**
      * This API Takes the request which has new password and confirm password and validates both of them
@@ -110,22 +114,25 @@ class ForgotPasswordController extends Controller
                 'message' => "Password doesn't match"
             ], 400);
         }
-        $currentUser = Auth::user();
-        $userObject = new User();
-        $user = $userObject->userEmailValidation($currentUser->email);
-        if (!$user) {
-            Log::error('Email not found.', ['id' => $request->email]);
-            return response()->json([
-                'message' => "we cannot find the user with that e-mail address"
-            ], 400);
-        } else {
-            $user->password = bcrypt($request->new_password);
-            $user->save();
-            Log::info('Reset Successful : '.'Email Id :'.$request->email );
-            return response()->json([
-                'status' => 201,
-                'message' => 'Password reset successfull!'
-            ], 201);
+        try {
+            $currentUser = Auth::user();
+            $userObject = new User();
+            $user = $userObject->userEmailValidation($currentUser->email);
+            if (!$user) {
+                Log::error('Email not found.', ['id' => $request->email]);
+                throw new BookStoreAppException("we can not find a user with that email address", 404);
+            } else {
+                $user->password = bcrypt($request->new_password);
+                $user->save();
+                Log::info('Reset Successful : ' . 'Email Id :' . $request->email);
+                return response()->json([
+                    'status' => 201,
+                    'message' => 'Password reset successfull!'
+                ], 201);
+            }
+        } catch (BookStoreAppException $e) {
+
+            return response()->json(['message' => $e->message(), 'status' => $e->statusCode()]);
         }
     }
 }
