@@ -6,6 +6,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\AddressController;
+use App\Http\Controllers\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,13 +41,22 @@ Route::group([
     Route::post('deletebook', [BookController::class, 'deleteBookByBookId']);
     Route::get('displaybooks', [BookController::class, 'getAllBooks']);
     Route::get('pagination', [BookController::class, 'paginationBook']);
+    Route::post('searchbook', [BookController::class, 'searchByEnteredKeyWord']);
+    Route::get('sortlowtohigh', [BookController::class, 'sortOnPriceLowToHigh']);
+    Route::get('sorthightolow', [BookController::class, 'sortOnPriceHighToLow']);
+
 
     Route::post('addtocart', [CartController::class, 'addBookToCartByBookId']);
     Route::post('deletecart', [CartController::class, 'deleteBookByCartId']);
     Route::get('getcart', [CartController::class, 'getAllBooksByUserId']);
     Route::post('updatequantity', [CartController::class, 'updateBookQuantityInCart']);
 
+    Route::post('addaddress', [AddressController::class, 'addAddress']);
+    Route::post('updateaddress', [AddressController::class, 'updateAddress']);
+    Route::post('deleteaddress', [AddressController::class, 'deleteAddress']);
+    Route::post('getaddress', [AddressController::class, 'getAddress']);
 
+    Route::post('placeorder', [OrderController::class, 'placeOrder']);
 
 
 });

@@ -9,6 +9,184 @@
         "version": "1.0.0"
     },
     "paths": {
+        "/api/auth/addaddress": {
+            "post": {
+                "summary": "Add Address",
+                "description": "User Can Add Address ",
+                "operationId": "1088e8a24ec6e84daf5e808bc9f18559",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "address",
+                                    "city",
+                                    "state",
+                                    "landmark",
+                                    "pincode",
+                                    "addresstype"
+                                ],
+                                "properties": {
+                                    "address": {
+                                        "type": "string"
+                                    },
+                                    "city": {
+                                        "type": "string"
+                                    },
+                                    "state": {
+                                        "type": "string"
+                                    },
+                                    "landmark": {
+                                        "type": "string"
+                                    },
+                                    "pincode": {
+                                        "type": "string"
+                                    },
+                                    "addresstype": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Address Added Successfully"
+                    },
+                    "401": {
+                        "description": "Address alredy present for the user"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/updateaddress": {
+            "post": {
+                "summary": "Update Address",
+                "description": "User Can Update Address ",
+                "operationId": "71b570ffd5ac5a4d0c391f9f531ec299",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "address",
+                                    "city",
+                                    "state",
+                                    "landmark",
+                                    "pincode",
+                                    "addresstype"
+                                ],
+                                "properties": {
+                                    "address": {
+                                        "type": "string"
+                                    },
+                                    "city": {
+                                        "type": "string"
+                                    },
+                                    "state": {
+                                        "type": "string"
+                                    },
+                                    "landmark": {
+                                        "type": "string"
+                                    },
+                                    "pincode": {
+                                        "type": "string"
+                                    },
+                                    "addresstype": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Address Updated Successfully"
+                    },
+                    "401": {
+                        "description": "Address not present add address first"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/deleteaddress": {
+            "post": {
+                "summary": "Delete Address",
+                "description": " Delete Address ",
+                "operationId": "e20053b911a63ff538ee5aa2d5366915",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "user_id"
+                                ],
+                                "properties": {
+                                    "user_id": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Book deleted Sucessfully from cart"
+                    },
+                    "404": {
+                        "description": "Invalid authorization token"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/getaddess": {
+            "get": {
+                "summary": "Get address ",
+                "description": " Get Address ",
+                "operationId": "c286d3e14f3d7d7724190afde79caed2",
+                "requestBody": {},
+                "responses": {
+                    "404": {
+                        "description": "Address not found"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
         "/api/auth/addbook": {
             "post": {
                 "summary": "Add Book",
@@ -229,6 +407,95 @@
                 }
             }
         },
+        "/api/auth/pagination": {
+            "get": {
+                "summary": "Paginate All Books",
+                "description": " Paginate All Books Present in the BookStore ",
+                "operationId": "1910d1912d12842fe1fe0e05cc4bc935",
+                "requestBody": {},
+                "responses": {
+                    "201": {
+                        "description": "Pagination aplied to all Books"
+                    }
+                }
+            }
+        },
+        "/api/auth/searchbook": {
+            "post": {
+                "summary": "search the book from BookStoreApp",
+                "description": " Search Book ",
+                "operationId": "614c5ca1e0952790b99030455a5a3b90",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "search"
+                                ],
+                                "properties": {
+                                    "search": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Serch done Successfully"
+                    },
+                    "403": {
+                        "description": "Invalid authorization token"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/sortlowtohigh": {
+            "get": {
+                "summary": "sort on ascending order",
+                "description": " sort on ascending order ",
+                "operationId": "2cefbc6f0e35a3eb1201054c4d6c4ede",
+                "requestBody": {},
+                "responses": {
+                    "201": {
+                        "description": "These much books are in store ....."
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/sorthightolow": {
+            "get": {
+                "summary": "sort on Descending order",
+                "description": " sort on Descending order ",
+                "operationId": "d245f743fa443ac9a66aaa4a719e670d",
+                "requestBody": {},
+                "responses": {
+                    "201": {
+                        "description": "These much books are in store ....."
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
         "/api/auth/addtocart": {
             "post": {
                 "summary": "Add the book to Cart",
@@ -441,6 +708,50 @@
                     },
                     "400": {
                         "description": "we can not find the user with that e-mail address"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/placeorder": {
+            "post": {
+                "summary": "Place  Order",
+                "description": " Place a order ",
+                "operationId": "1d85aec09675c8f8b785ba47ff0dd3fa",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "quantity"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "quantity": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Order Successfully Placed..."
+                    },
+                    "401": {
+                        "description": "We Do not have this book in the store..."
                     }
                 },
                 "security": [
