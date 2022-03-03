@@ -638,6 +638,50 @@
                 ]
             }
         },
+        "/api/auth/decreasequantity": {
+            "post": {
+                "summary": "Decrease Quantity to Existing Book in cart",
+                "description": " Decrease Book Quantity  in cart",
+                "operationId": "ab2f91b451333a8dbb9b66037b16d95a",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "id",
+                                    "book_quantity"
+                                ],
+                                "properties": {
+                                    "id": {
+                                        "type": "integer"
+                                    },
+                                    "book_quantity": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Book Quantity updated Successfully"
+                    },
+                    "404": {
+                        "description": "Invalid authorization token"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
         "/api/auth/forgotpassword": {
             "post": {
                 "summary": "forgotpassword",
@@ -868,6 +912,192 @@
                 "responses": {
                     "201": {
                         "description": "User successfully signed out"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/addtowishlist": {
+            "post": {
+                "summary": "Add the book to wishlist",
+                "description": " Add to wishlist ",
+                "operationId": "01b9553583670316d2efff1b52738918",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "book_id"
+                                ],
+                                "properties": {
+                                    "book_id": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Book added to wishlist Sucessfully"
+                    },
+                    "404": {
+                        "description": "Invalid authorization token"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/deletewishlist": {
+            "post": {
+                "summary": "Delete the book from wishlist",
+                "description": " Delete wishlist ",
+                "operationId": "f6778306d1227d046cc41f40bf934c40",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "id"
+                                ],
+                                "properties": {
+                                    "id": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Book deleted Sucessfully from wishlist"
+                    },
+                    "404": {
+                        "description": "Invalid authorization token"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/getwishlist": {
+            "get": {
+                "summary": "Get All Books Present in wishlist",
+                "description": " Get All Books Present in wishlist ",
+                "operationId": "7c75b7f6baeccdd8a03c6af792d0112d",
+                "requestBody": {},
+                "responses": {
+                    "404": {
+                        "description": "Invalid authorization token"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/updatewishlist": {
+            "post": {
+                "summary": "Add Quantity to Existing Book in wishlist",
+                "description": " Add Book Quantity  in wishlist",
+                "operationId": "56f6edc3d5b509ba105adb8658cad058",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "id",
+                                    "book_quantity"
+                                ],
+                                "properties": {
+                                    "id": {
+                                        "type": "integer"
+                                    },
+                                    "book_quantity": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Book Quantity updated Successfully"
+                    },
+                    "404": {
+                        "description": "Invalid authorization token"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/decreasewishlist": {
+            "post": {
+                "summary": "Decrease Quantity to Existing Book in wishlist",
+                "description": " decrease Book Quantity  in wishlist",
+                "operationId": "7d5f324d03ebb23619f8fed40d48313b",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "id",
+                                    "book_quantity"
+                                ],
+                                "properties": {
+                                    "id": {
+                                        "type": "integer"
+                                    },
+                                    "book_quantity": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Book Quantity updated Successfully"
+                    },
+                    "404": {
+                        "description": "Invalid authorization token"
                     }
                 },
                 "security": [

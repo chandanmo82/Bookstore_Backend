@@ -8,6 +8,7 @@ use App\Http\Controllers\BookController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\WishlistController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,6 +51,14 @@ Route::group([
     Route::post('deletecart', [CartController::class, 'deleteBookByCartId']);
     Route::get('getcart', [CartController::class, 'getAllBooksByUserId']);
     Route::post('updatequantity', [CartController::class, 'updateBookQuantityInCart']);
+    Route::post('decreasequantity', [CartController::class, 'decreaseBookQuantityInCart']);
+
+
+    Route::post('addtowishlist', [WishlistController::class, 'addBookToWishlistByBookId']);
+    Route::post('deletewishlist', [WishlistController::class, 'deleteBookByWishlistId']);
+    Route::get('getwishlist', [WishlistController::class, 'getAllBooksInWishlist']);
+    Route::post('updatewishlist', [WishlistController::class, 'updateBookQuantityInWishlist']);
+    Route::post('decreasewishlist', [WishlistController::class, 'decreaseBookQuantityInWishlist']);
 
     Route::post('addaddress', [AddressController::class, 'addAddress']);
     Route::post('updateaddress', [AddressController::class, 'updateAddress']);

@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Exceptions\BookStoreAppException;
+use App\Notifications\ForgotPassword;
 
 /**
  * @since 22-Feb-2022
@@ -61,8 +62,10 @@ class ForgotPasswordController extends Controller
             }
             $token = Auth::fromUser($user);
             if ($user) {
-                $sendEmail = new SendEmailRequest();
-                $sendEmail->sendEmail($user->email, $token);
+                $delay = now()->addSeconds(5);
+                $user->notify((new ForgotPassword($user, $token))->delay($delay));
+                //$sendEmail = new SendEmailRequest();
+                //$sendEmail->sendEmail($user->email, $token);
             }
             Log::info('Forgot PassWord Link : ' . 'Email Id :' . $request->email);
             return response()->json(['message' => 'we have mailed your password reset link to respective E-mail'], 200);

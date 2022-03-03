@@ -5,10 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Cart extends Model
+class Wishlist extends Model
 {
     use HasFactory;
-    protected $table = "carts";
+    protected $table="wishlists";
     protected $fillable = ['book_id'];
 
     public function book()
@@ -20,16 +20,8 @@ class Cart extends Model
     {
         return $this->belongsTo(User::class);
     }
-    public function adminOrUserVerification($currentUserId)
-    {
+    public function adminOrUserVerification($currentUserId){
         $userId = User::select('id')->where([['role', '=', 'user'], ['id', '=', $currentUserId]])->get();
         return $userId;
-    }
-    public function bookExistOrNot($book_id)
-    {
-        $book_existance = Book::select('quantity')->where([
-            ['id', '=', $book_id]
-        ])->get();
-        return $book_existance;
     }
 }

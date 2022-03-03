@@ -90,7 +90,7 @@ class OrderController extends Controller
                 $get_price = Book::select('Price')
                     ->where([['books.name', '=', $request->input('name')]])
                     ->value('Price');
-                    
+
                 //calculate total price
                 $total_price = $request->input('quantity') * $get_price;
 
@@ -100,9 +100,13 @@ class OrderController extends Controller
                     'address_id' => $get_addressid,
                     'order_id' => $this->generateUniqueOrderId(),
                 ]);
+                $adminId = User::select('email')->where([['role', '=', 'admin']])->get();
                 $sendEmail = new SendEmailRequest();
-                $sendEmail->sendEmailToUser($currentUser->email, $order->order_id, $get_BookName, $get_BookAuthor, $request->input('quantity'), $total_price);
-
+                $sendEmail->sendEmailToUser($currentUser->email, $order->order_id, $get_BookName, $get_BookAuthor, $request->input('quantity'), $total_price,$adminId);
+                $book = new Book();
+                $book = Book::find($get_bookid);
+                $book->quantity -= $request->quantity;
+                $book->save();
                 return response()->json([
                     'message' => 'Order Successfully Placed...',
                     'OrderId' => $order->order_id,
@@ -113,9 +117,6 @@ class OrderController extends Controller
                 $value = Cache::remember('orders', 3600, function () {
                     return DB::table('orders')->get();
                 });
-                $updatedQuantity = $get_quantity - $request->input('quantity');
-                $temp = Book::where('id', $get_bookid)
-                    ->update(['quantity' => $updatedQuantity]);
             }
         } catch (BookStoreAppException $e) {
             return response()->json(['message' => $e->message(), 'status' => $e->statusCode()]);

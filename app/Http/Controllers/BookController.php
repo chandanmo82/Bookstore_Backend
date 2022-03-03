@@ -335,9 +335,10 @@ class BookController extends Controller
     public function getAllBooks()
     {
         try {
-            $book = Cache::remember('books', 3600, function () {
+            /*$book = Cache::remember('books', 3600, function () {
                 return DB::table('books')->get();
-            });
+            });*/
+            $book = Book::paginate(3);
             //$book = Book::select('id','name','description','author','image','Price','quantity')->get();
             if ($book == []) {
                 throw new BookStoreAppException("Books are not there", 404);

@@ -27,4 +27,10 @@ class Book extends Model
     public function order(){
         return $this->belongsTo(Order::class);
     }
+    public function cart(){
+        return $this->belongsTo(Cart::class);
+    }
+    public function wishlist(){
+        return $this->belongsTo(Wishlist::class); 
+    }
 }

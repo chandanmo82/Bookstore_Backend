@@ -54,12 +54,12 @@ class SendEmailRequest
             return back()->with('error', 'Message could not be sent.');
         }
     }
-    public function sendEmailToUser($email, $data, $bookname, $get_BookAuthor, $Quantity, $Total_Price)
+    public function sendEmailToUser($email, $data, $bookname, $get_BookAuthor, $Quantity, $Total_Price,$adminEmail)
     {
         $name = 'BookStore';
         $email = $email;
         $subject = 'Your Order Summary';
-        $data = "Hurray!!!!your order is confirmed and the order summary is : <br>" . "Order_Id : " . $data . "<br>Book Name : " . $bookname . "<br>Book Author : " . $get_BookAuthor . "<br>Book Quantity : " . $Quantity . "<br>Total Payment : " . $Total_Price ."<br>Save the OrderId For Further Communication";
+        $data = " Hello Chandan Kumar!!!!<br><br>Yo have Placed an Order From BookStore App <br><br> Hurray!!!!your order is confirmed .<br><br> Your Order Summary is : <br><br>" . "Order_Id : " . $data . "<br><br>Book Name : " . $bookname . "<br><br>Book Author : " . $get_BookAuthor . "<br><br>Book Quantity : " . $Quantity . "<br><br>Total Payment : " . $Total_Price ."<br><br>Save the OrderId For Further Communication"."<br>For Further Querry Contact This Email Id <br>".$adminEmail ;
 
         $mail = new PHPMailer(true);
 
