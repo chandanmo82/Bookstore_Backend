@@ -63,15 +63,6 @@ class AddressController extends Controller
         try {
             $currentUser = JWTAuth::parseToken()->authenticate();
             if ($currentUser) {
-                $address_exist = Address::select('address')->where([
-                    ['user_id', '=', $currentUser->id]
-                ])->get();
-
-                if (count($address_exist) != 0) {
-                    Log::error('Address alredy present');
-                    throw new BookStoreAppException("Address alredy present for the user", 401);
-                }
-
                 $address = new Address;
                 $address->user_id = $currentUser->id;
                 $address->address = $request->input('address');
@@ -99,7 +90,7 @@ class AddressController extends Controller
      * want to change then can update and will save in database the updated data which updated by 
      * respective user
      */
-     /**
+    /**
      * @OA\Post(
      *   path="/api/auth/updateaddress",
      *   summary="Update Address",
@@ -175,7 +166,7 @@ class AddressController extends Controller
      * This method will take input from user as userId and will delete the address present for
      * the respective user in database
      */
-     /**
+    /**
      * @OA\Post(
      *   path="/api/auth/deleteaddress",
      *   summary="Delete Address",
@@ -229,7 +220,7 @@ class AddressController extends Controller
     /**
      * This method will authenticate the user and will return all the address of respective user
      */
-     /**
+    /**
      * @OA\Get(
      *   path="/api/auth/getaddess",
      *   summary="Get address ",
@@ -248,9 +239,9 @@ class AddressController extends Controller
         $currentUser = JWTAuth::parseToken()->authenticate();
         try {
             if ($currentUser) {
-                $user = Address::select('addresses.id', 'addresses.user_id', 'addresses.address', 'addresses.city', 'addresses.state', 'addresses.landmark', 'addresses.pincode', 'addresses.addresstype')
-                    ->where([['addresses.user_id', '=', $currentUser->id]])
-                    ->get();
+                $address = new Address();
+                $user_id = $currentUser->id;
+                $user = $address->getUserAddress($user_id);
                 if ($user == '[]') {
                     throw new BookStoreAppException("Address not found", 404);
                 }

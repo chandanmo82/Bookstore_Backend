@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use App\Exceptions\BookStoreAppException;
 use App\Http\Requests\SendEmailRequest;
+use App\Notifications\PlaceOrder;
 
 class OrderController extends Controller
 {
@@ -44,6 +45,7 @@ class OrderController extends Controller
     public function placeOrder(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'address_id' => 'required',
             'name' => 'required',
             'quantity' => 'required',
         ]);
@@ -53,43 +55,31 @@ class OrderController extends Controller
         try {
             $currentUser = JWTAuth::parseToken()->authenticate();
             if ($currentUser) {
-                $get_book = Book::where('name', '=', $request->input('name'))->first();
+                $book = new Book();
+                $address = new Address();
+                $get_book = $book->bookExistOrNot($request->input('name'));
                 if ($get_book == '') {
                     Log::error('Book is not available');
                     throw new BookStoreAppException("We Do not have this book in the store...", 401);
                 }
-                $get_quantity = Book::select('quantity')
-                    ->where([['books.user_id', '=', $currentUser->id], ['books.name', '=', $request->input('name')]])
-                    ->get();
-
+                $get_quantity = $book->getQuantity($currentUser->id,$request->input('name'));
                 if ($get_quantity < $request->input('quantity')) {
                     Log::error('Book stock is not available');
                     throw new BookStoreAppException("This much stock is unavailable for the book", 401);
                 }
                 //getting bookID
-                $get_bookid = Book::select('id')
-                    ->where([['books.name', '=', $request->input('name')]])
-                    ->value('id');
+                $get_bookid =$book->getCurrentBookId($request->input('name'));
 
                 //getting addressID
-                $get_addressid = Address::select('id')
-                    ->where([['user_id', '=', $currentUser->id]])
-                    ->value('id');
-
+                $get_addressid = $request->input('address_id');
                 //get book name..    
-                $get_BookName = Book::select('name')
-                    ->where('name', '=', $request->input('name'))
-                    ->value('name');
+                $get_BookName = $book->getBookName($request->input('name'));
 
                 //get book author ...
-                $get_BookAuthor = Book::select('author')
-                    ->where('name', '=', $request->input('name'))
-                    ->value('author');
+                $get_BookAuthor = $book->getBookAuthor($request->input('name'));
 
                 //get book price
-                $get_price = Book::select('Price')
-                    ->where([['books.name', '=', $request->input('name')]])
-                    ->value('Price');
+                $get_price = $book->getBookPrice($request->input('name'));
 
                 //calculate total price
                 $total_price = $request->input('quantity') * $get_price;
@@ -100,9 +90,10 @@ class OrderController extends Controller
                     'address_id' => $get_addressid,
                     'order_id' => $this->generateUniqueOrderId(),
                 ]);
-                $adminId = User::select('email')->where([['role', '=', 'admin']])->get();
-                $sendEmail = new SendEmailRequest();
-                $sendEmail->sendEmailToUser($currentUser->email, $order->order_id, $get_BookName, $get_BookAuthor, $request->input('quantity'), $total_price,$adminId);
+                $userId = User::where('id', $currentUser->id)->first();
+
+                $delay = now()->addSeconds(5);
+                $userId->notify((new PlaceOrder($order->order_id, $get_BookName, $get_BookAuthor, $request->input('quantity'), $total_price ))->delay($delay));
                 $book = new Book();
                 $book = Book::find($get_bookid);
                 $book->quantity -= $request->quantity;
@@ -110,7 +101,7 @@ class OrderController extends Controller
                 return response()->json([
                     'message' => 'Order Successfully Placed...',
                     'OrderId' => $order->order_id,
-                    'Quantity' => $request->input('quantity'),
+                    'Book Quantity' => $request->input('quantity'),
                     'Total_Price' => $total_price,
                     'message1' => 'Mail also sent to the user with all details',
                 ], 201);

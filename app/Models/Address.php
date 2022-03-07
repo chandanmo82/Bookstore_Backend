@@ -22,5 +22,15 @@ class Address extends Model
     public function user() {
         return $this->belongsTo(User::class);
     }
+    public function getUserAddress($user_id){
+        $user = Address::select('addresses.id', 'addresses.user_id', 'addresses.address', 'addresses.city', 'addresses.state', 'addresses.landmark', 'addresses.pincode', 'addresses.addresstype')
+                    ->where([['addresses.user_id', '=', $user_id]])
+                    ->get();
+        return $user;            
+
+    }
+    public function addressExist($userId) {
+        return Address::where('id', $userId)->first();
+    }
 
 }

@@ -57,8 +57,6 @@ Route::group([
     Route::post('addtowishlist', [WishlistController::class, 'addBookToWishlistByBookId']);
     Route::post('deletewishlist', [WishlistController::class, 'deleteBookByWishlistId']);
     Route::get('getwishlist', [WishlistController::class, 'getAllBooksInWishlist']);
-    Route::post('updatewishlist', [WishlistController::class, 'updateBookQuantityInWishlist']);
-    Route::post('decreasewishlist', [WishlistController::class, 'decreaseBookQuantityInWishlist']);
 
     Route::post('addaddress', [AddressController::class, 'addAddress']);
     Route::post('updateaddress', [AddressController::class, 'updateAddress']);

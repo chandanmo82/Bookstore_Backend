@@ -54,27 +54,23 @@ class WishlistController extends Controller
         try {
             $currentUser = JWTAuth::parseToken()->authenticate();
             $wishlist = new Wishlist();
+            $bookObject = new Book();
             $userId = $wishlist->adminOrUserVerification($currentUser->id);
             if (count($userId) == 0) {
                 return response()->json(['message' => 'You are not an User'], 404);
             }
             if ($currentUser) {
                 $book_id = $request->input('book_id');
-                $book_existance = Book::select('quantity')->where([
-                    ['id', '=', $book_id]
-                ])->get();
-
+                $user_id = $currentUser->id;
+                $book_existance = $wishlist->bookExistOrNot($book_id);
                 if (!$book_existance) {
                     return response()->json(['message' => 'Book not Found In The Bookstore'], 404);
                 }
-                $book = Book::find($book_id);
+                $book = $bookObject->getBookId($book_id);
                 if ($book->quantity == 0) {
                     return response()->json(['message' => 'OUT OF STOCK From The BookStore'], 404);
                 }
-                $book_wishlist = Wishlist::where([
-                    ['book_id', '=', $request->input('book_id')],
-                    ['user_id', '=', $currentUser->id]
-                ])->first();
+                $book_wishlist = $wishlist->BookAlreadyAddedOrNot($book_id ,$user_id);
 
                 if ($book_wishlist) {
                     return response()->json(['message' => 'Book already added to Wishlist'], 404);
@@ -192,11 +188,8 @@ class WishlistController extends Controller
                 return response()->json(['message' => 'You are not an User'], 404);
             }
             if ($currentUser) {
-                $books = Wishlist::leftJoin('books', 'wishlists.book_id', '=', 'books.id')
-                    ->select('books.id', 'books.name', 'books.author', 'books.description', 'books.Price', 'wishlists.book_quantity')
-                    ->where('wishlists.user_id', '=', $currentUser->id)
-                    ->get();
-
+                $user_id = $currentUser->id;
+                $books = $wishlist->leftJoinBookWithWishlist($user_id);
                 if ($books == '[]') {
                     Log::error('Book Not Found');
                     return response()->json(['message' => 'Books not found'], 404);
@@ -204,7 +197,7 @@ class WishlistController extends Controller
                 Log::info('All book Presnet in wishlist are fetched');
                 return response()->json([
                     'message' => 'Books Present in wishlist :',
-                    'wishlist' => $books,
+                    'Wishlist' => $books,
 
                 ], 201);
             } else {
@@ -216,133 +209,5 @@ class WishlistController extends Controller
         }
     }
 
-    /**
-     * This function will take input as wishlist id and quantity from user and update
-     * the quantity for the respective wishlist id and user
-     */
-    /**
-     * @OA\Post(
-     *   path="/api/auth/updatewishlist",
-     *   summary="Add Quantity to Existing Book in wishlist",
-     *   description=" Add Book Quantity  in wishlist",
-     *   @OA\RequestBody(
-     *         @OA\JsonContent(),
-     *         @OA\MediaType(
-     *            mediaType="multipart/form-data",
-     *            @OA\Schema(
-     *               type="object",
-     *               required={"id", "book_quantity"},
-     *               @OA\Property(property="id", type="integer"),
-     *               @OA\Property(property="book_quantity", type="integer"),
-     *            ),
-     *        ),
-     *    ),
-     *   @OA\Response(response=201, description="Book Quantity updated Successfully"),
-     *   @OA\Response(response=404, description="Invalid authorization token"),
-     *   security = {
-     * {
-     * "Bearer" : {}}}
-     * )
-     */
-    public function updateBookQuantityInWishlist(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'id' => 'required',
-            'book_quantity' => 'required|integer|min:1'
-        ]);
-        if ($validator->fails()) {
-            return response()->json($validator->errors()->toJson(), 400);
-        }
-
-        try {
-            $currentUser = JWTAuth::parseToken()->authenticate();
-            $wishlist = new Wishlist();
-            $userId = $wishlist->adminOrUserVerification($currentUser->id);
-            if (count($userId) == 0) {
-                return response()->json(['message' => 'You are not an User'], 404);
-            }
-            if (!$currentUser) {
-                Log::error('Invalid User');
-                throw new BookStoreAppException("Invalid authorization token", 404);
-            }
-            $wishlist = Wishlist::find($request->id);
-
-            if (!$wishlist) {
-                return response()->json([
-                    'message' => 'Item Not found with this id'
-                ], 404);
-            }
-            $wishlist->book_quantity += $request->book_quantity;
-            $wishlist->save();
-            Log::info('Book Quantity updated Successfully to the bookstore wishlist');
-            return response()->json([
-                'message' => 'Book Quantity updated Successfully'
-            ], 201);
-        } catch (BookStoreAppException $e) {
-            return response()->json(['message' => $e->message(), 'status' => $e->statusCode()]);
-        }
-    }
-
-    /**
-     * @OA\Post(
-     *   path="/api/auth/decreasewishlist",
-     *   summary="Decrease Quantity to Existing Book in wishlist",
-     *   description=" decrease Book Quantity  in wishlist",
-     *   @OA\RequestBody(
-     *         @OA\JsonContent(),
-     *         @OA\MediaType(
-     *            mediaType="multipart/form-data",
-     *            @OA\Schema(
-     *               type="object",
-     *               required={"id", "book_quantity"},
-     *               @OA\Property(property="id", type="integer"),
-     *               @OA\Property(property="book_quantity", type="integer"),
-     *            ),
-     *        ),
-     *    ),
-     *   @OA\Response(response=201, description="Book Quantity updated Successfully"),
-     *   @OA\Response(response=404, description="Invalid authorization token"),
-     *   security = {
-     * {
-     * "Bearer" : {}}}
-     * )
-     */
-    public function decreaseBookQuantityInWishlist(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'id' => 'required',
-            'book_quantity' => 'required|integer|min:1'
-        ]);
-        if ($validator->fails()) {
-            return response()->json($validator->errors()->toJson(), 400);
-        }
-
-        try {
-            $currentUser = JWTAuth::parseToken()->authenticate();
-            $wishlist = new Wishlist();
-            $userId = $wishlist->adminOrUserVerification($currentUser->id);
-            if (count($userId) == 0) {
-                return response()->json(['message' => 'You are not an User'], 404);
-            }
-            if (!$currentUser) {
-                Log::error('Invalid User');
-                throw new BookStoreAppException("Invalid authorization token", 404);
-            }
-            $wishlist = Wishlist::find($request->id);
-
-            if (!$wishlist) {
-                return response()->json([
-                    'message' => 'Item Not found with this id'
-                ], 404);
-            }
-            $wishlist->book_quantity -= $request->book_quantity;
-            $wishlist->save();
-            Log::info('Book Quantity updated Successfully to the bookstore wishlist');
-            return response()->json([
-                'message' => 'Book Quantity updated Successfully'
-            ], 201);
-        } catch (BookStoreAppException $e) {
-            return response()->json(['message' => $e->message(), 'status' => $e->statusCode()]);
-        }
-    }
+    
 }
