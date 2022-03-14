@@ -119,7 +119,7 @@ class OrderController extends Controller
     }
 
 
-    //generate unique orderId... for 
+    //generate unique orderId... for unique order id
     public function generateUniqueOrderId()
     {
         do {
