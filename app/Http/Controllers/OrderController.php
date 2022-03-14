@@ -7,6 +7,7 @@ use App\Models\Address;
 use App\Models\Order;
 use App\Models\Book;
 use App\Models\User;
+use App\Models\Cart;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -62,13 +63,13 @@ class OrderController extends Controller
                     Log::error('Book is not available');
                     throw new BookStoreAppException("We Do not have this book in the store...", 401);
                 }
-                $get_quantity = $book->getQuantity($currentUser->id,$request->input('name'));
+                $get_quantity = $book->getQuantity($currentUser->id, $request->input('name'));
                 if ($get_quantity < $request->input('quantity')) {
                     Log::error('Book stock is not available');
                     throw new BookStoreAppException("This much stock is unavailable for the book", 401);
                 }
                 //getting bookID
-                $get_bookid =$book->getCurrentBookId($request->input('name'));
+                $get_bookid = $book->getCurrentBookId($request->input('name'));
 
                 //getting addressID
                 $get_addressid = $request->input('address_id');
@@ -93,7 +94,7 @@ class OrderController extends Controller
                 $userId = User::where('id', $currentUser->id)->first();
 
                 $delay = now()->addSeconds(5);
-                $userId->notify((new PlaceOrder($order->order_id, $get_BookName, $get_BookAuthor, $request->input('quantity'), $total_price ))->delay($delay));
+                $userId->notify((new PlaceOrder($order->order_id, $get_BookName, $get_BookAuthor, $request->input('quantity'), $total_price))->delay($delay));
                 $book = new Book();
                 $book = Book::find($get_bookid);
                 $book->quantity -= $request->quantity;
@@ -118,7 +119,7 @@ class OrderController extends Controller
     }
 
 
-    //get unique orderId...
+    //generate unique orderId... for 
     public function generateUniqueOrderId()
     {
         do {
@@ -127,4 +128,5 @@ class OrderController extends Controller
 
         return $orderid;
     }
+
 }

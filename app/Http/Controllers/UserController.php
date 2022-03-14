@@ -83,7 +83,6 @@ class UserController extends Controller
             if ($user) {
                 throw new BookStoreAppException("The email has already been taken", 401);
             }
-
             $userObject = new User();
             $userDetails = $userObject->saveUserDetails($userArray);
             Log::info('Registered user Email : ' . 'Email Id :' . $request->email);
