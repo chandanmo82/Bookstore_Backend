@@ -118,7 +118,6 @@ class OrderController extends Controller
         ], 404);
     }
 
-
     //generate unique orderId... for unique order id
     public function generateUniqueOrderId()
     {
